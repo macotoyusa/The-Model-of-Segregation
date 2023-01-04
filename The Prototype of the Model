@@ -1,5 +1,4 @@
 %matplotlib inline
-#%matplotlib nbagg
 from random import uniform, seed
 from math import sqrt
 import matplotlib.pyplot as plt
@@ -30,10 +29,10 @@ class Agent:
         for agent in agents:
             if self!=agent:
                 distance = self.get_distance(agent)
-                distances.append((distance, agent)) #(距離、エイジェント)というタプルを作成
-        distances.sort() #距離の近い順に上からソート
-        neighbors = [agent for d, agent in distances[:num_neighbors]] #隣人をnbum_neighborsにとってくる
-        num_same_type = sum(self.type == agent.type for agent in neighbors) #同タイプの人の数を数える
+                distances.append((distance, agent)) ###(距離、エージェント（個人）)というタプルを作成
+        distances.sort() ###距離の近い順に上からソート
+        neighbors = [agent for d, agent in distances[:num_neighbors]] ###隣人をnum_neighborsにとってくる
+        num_same_type = sum(self.type == agent.type for agent in neighbors) ###同タイプの人の数を数える
         if num_same_type >= require_same_type:
             self.state = 'happy'
         else:
@@ -47,18 +46,16 @@ class Agent:
 
 num_of_type_0 = 500
 num_of_type_1 = 500
-num_neighbors = 10      # Number of agents regarded as neighbors
-require_same_type = 3  # Want at least this many neighbors to be same type
+num_neighbors = 10      ###隣人と判断されるエージェント（個人）の数
+require_same_type = 3  ###少なくともこの数と同じ教育意識のエージェントが隣人であってほしい
 
-# == Create a list of agents == #
 agents = [Agent(0) for i in range(num_of_type_0)]
 agents.extend(Agent(1) for i in range(num_of_type_1))
 
-# ==  Loop until none wishes to move == #
 frame = []
 while True:
     print('Entering loop ')
-        #プロットの準備
+        ###プロットの準備
     x_values_0, y_values_0 = [], []
     x_values_1, y_values_1 = [], []
     for agent in agents:
