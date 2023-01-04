@@ -45,8 +45,8 @@ class Agent:
 
 
 
-num_of_type_0 = 250
-num_of_type_1 = 250
+num_of_type_0 = 500
+num_of_type_1 = 500
 num_neighbors = 10      # Number of agents regarded as neighbors
 require_same_type = 3  # Want at least this many neighbors to be same type
 
