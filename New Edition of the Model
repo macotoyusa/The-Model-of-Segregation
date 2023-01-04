@@ -151,10 +151,10 @@ ax.set_xlim(0,1)
 ax.set_ylim(0,1)
 
 def update(i):
-    im1.set_data(frame[i][0]) #教育意識の低い人種0
-    im2.set_data(frame[i][1]) #教育意識の高い人種0
-    im3.set_data(frame[i][2]) #教育意識の低い人種1
-    im4.set_data(frame[i][3]) #教育意識の高い人種1
+    im1.set_data(frame[i][0]) #教育意識の低い人種a
+    im2.set_data(frame[i][1]) #教育意識の高い人種a
+    im3.set_data(frame[i][2]) #教育意識の低い人種b
+    im4.set_data(frame[i][3]) #教育意識の高い人種b
     plt.title('Cycle :{}'.format(i))
 anim = FuncAnimation(fig, update,  blit=False,interval = 1000,frames=len(frame))
 HTML(anim.to_jshtml())
