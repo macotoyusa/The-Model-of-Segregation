@@ -15,9 +15,9 @@ class Agent:
   def __init__(self, race, edu, kind):
     self.race = race
     self.state = "happy"
-    self.edu = edu   ###教育意識
+    self.edu = edu        ###教育意識
     self.draw_location()  ###場所
-    self.kind = kind ###動き方
+    self.kind = kind      ###動き方（人種、もしくは教育意識）
   
   def draw_location(self):
     self.location = uniform(0,1), uniform(0,1)
@@ -29,7 +29,7 @@ class Agent:
     return distance
 
   def happy(self, agents):
-    if self.kind == 0:  #kind == 0は人種
+    if self.kind == 0:  ###kind == 0は人種によって移動を決める
       distances = []
       for agent in agents:
         if self != agent:
@@ -42,7 +42,7 @@ class Agent:
         self.state = "happy"
       else:
         self.state = "unhappy"
-    elif self.kind == 1:
+    elif self.kind == 1:  ###kind == 1は教育意識によって移動を決める
       distances = []
       for agent in agents:
         if self != agent:
@@ -69,15 +69,15 @@ class Agent:
 ###エージェントの総数
 n = 1000
 
-###500人中400人は人種で動く
+###1000人中800人は人種で動く
 num_of_race_i_i_0 = int(n * (4/5) * (1/4))
 
-###500人中100人は教育意識で動く
+###1000人中200人は教育意識で動く
 num_of_race_i_i_1 = int(n * (1/5) * (1/4))
 
-num_neighbors = 10 ###隣人と判断されるエージェントの数
+num_neighbors = 10 ###隣人と判断されるエージェント（個人）の数
 
-require_same_edu = 3 ###少なくともこの数の同じ教育意識のエージェントが隣人であってほしい
+require_same_edu = 3 ###少なくともこの数と同じ教育意識のエージェントが隣人であってほしい
 
 
 ###リストの作成
@@ -92,9 +92,9 @@ agents.extend(Agent(0,1,1) for i in range(num_of_race_i_i_1))
 agents.extend(Agent(1,0,1) for i in range(num_of_race_i_i_1))
 
 for agent in agents:    
-  if agent.edu == 0:            ###edu == 0は教育意識が低い
+  if agent.edu == 0:            ###edu == 0は教育意識が低いことを意味する
     require_same_race = 3       ###少なくともこの数の同じ人種のエージェントが隣人であってほしい
-  elif agent.edu == 1:          ###edu == 1は教育意識が高い
+  elif agent.edu == 1:          ###edu == 1は教育意識が高いことを意味する
     require_same_race = 1
 
 ###動きたいエージェントがいなくなるまでループ
@@ -126,9 +126,7 @@ while True:
                 [x_value_0_1, y_value_0_1], 
                 [x_value_1_0, y_value_1_0], 
                 [x_value_1_1, y_value_1_1]])
-  
-#
-
+ 
   no_one_moved = True
   for agent in agents:
     old_location = agent.location
@@ -138,8 +136,6 @@ while True:
       no_one_moved = False
   if no_one_moved:
     break
-
-#
 
 print("Converged, terminating.")
 
