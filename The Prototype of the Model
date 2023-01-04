@@ -1,0 +1,100 @@
+%matplotlib inline
+#%matplotlib nbagg
+from random import uniform, seed
+from math import sqrt
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML
+
+
+
+class Agent:
+
+    def __init__(self, type):
+        self.type = type
+        self.state = "happy"
+        self.draw_location()
+
+    def draw_location(self):
+        self.location = uniform(0, 1), uniform(0, 1)
+    
+    def get_distance(self, other):
+        "Computes euclidean distance between self and other agent."
+        a = (self.location[0] - other.location[0])**2
+        b = (self.location[1] - other.location[1])**2
+        distance =  sqrt(a + b)
+        return distance
+    def happy(self, agents):
+        distances = []
+        for agent in agents:
+            if self!=agent:
+                distance = self.get_distance(agent)
+                distances.append((distance, agent)) #(距離、エイジェント)というタプルを作成
+        distances.sort() #距離の近い順に上からソート
+        neighbors = [agent for d, agent in distances[:num_neighbors]] #隣人をnbum_neighborsにとってくる
+        num_same_type = sum(self.type == agent.type for agent in neighbors) #同タイプの人の数を数える
+        if num_same_type >= require_same_type:
+            self.state = 'happy'
+        else:
+            self.state = 'unhappy'
+                
+    def update(self):
+        if self.state == "unhappy":
+            self.draw_location()
+
+
+
+num_of_type_0 = 250
+num_of_type_1 = 250
+num_neighbors = 10      # Number of agents regarded as neighbors
+require_same_type = 3  # Want at least this many neighbors to be same type
+
+# == Create a list of agents == #
+agents = [Agent(0) for i in range(num_of_type_0)]
+agents.extend(Agent(1) for i in range(num_of_type_1))
+
+# ==  Loop until none wishes to move == #
+frame = []
+while True:
+    print('Entering loop ')
+        #プロットの準備
+    x_values_0, y_values_0 = [], []
+    x_values_1, y_values_1 = [], []
+    for agent in agents:
+        x, y = agent.location
+        if agent.type == 0:
+            x_values_0.append(x)
+            y_values_0.append(y)
+        else:
+            x_values_1.append(x)
+            y_values_1.append(y)
+    frame.append([[x_values_0, y_values_0], [x_values_1, y_values_1]])#
+
+    no_one_moved = True
+    for agent in agents:
+        old_location = agent.location
+        agent.happy(agents)
+        agent.update()
+        if agent.location != old_location:
+            no_one_moved = False
+    if no_one_moved:
+        break
+
+print('Converged, terminating.')
+
+
+
+fig, ax = plt.subplots(figsize=(8, 8))
+plot_args = {'markersize' : 8, 'alpha' : 0.6}
+im1, = ax.plot([], [], 'x', markerfacecolor='orange',  **plot_args)
+im2, = ax.plot([], [], 'o', markerfacecolor='green',  **plot_args)
+ax.set_xlim(0,1)
+ax.set_ylim(0,1)
+
+def update(i):
+    im1.set_data(frame[i][0])
+    im2.set_data(frame[i][1])
+    plt.title('Cycle :{}'.format(i))
+anim = FuncAnimation(fig, update,  blit=False,interval = 1000,frames=len(frame))
+HTML(anim.to_jshtml())
