@@ -1,0 +1,164 @@
+%matplotlib inline
+
+from random import uniform, seed
+from math import sqrt
+import matplotlib.pyplot as plt
+import numpy as np
+import random
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML
+
+
+
+class Agent:
+
+  def __init__(self, race, edu, kind):
+    self.race = race
+    self.state = "happy"
+    self.edu = edu   #教育意識
+    self.draw_location()  #場所
+    self.kind = kind #動き方
+  
+  def draw_location(self):
+    self.location = uniform(0,1), uniform(0,1)
+  
+  def get_distance(self, other):
+    a = (self.location[0] - other.location[0])**2
+    b = (self.location[1] - other.location[1])**2
+    distance = sqrt(a + b)
+    return distance
+
+  def happy(self, agents):
+    if self.kind == 0:  #kind == 0は人種
+      distances = []
+      for agent in agents:
+        if self != agent:
+          distance = self.get_distance(agent)
+          distances.append((distance, agent))
+      distances.sort()
+      neighbors = [agent for distance, agent in distances[:num_neighbors]]
+      num_same_race = sum(self.race == agent.race for agent in neighbors)
+      if num_same_race >= require_same_race:
+        self.state = "happy"
+      else:
+        self.state = "unhappy"
+    elif self.kind == 1:
+      distances = []
+      for agent in agents:
+        if self != agent:
+          distance = self.get_distance(agent)
+          distances.append((distance, agent))
+      distances.sort()
+      neighbors = [agent for distance, agent in distances[:num_neighbors]]
+      num_same_edu = sum(self.edu == agent.edu for agent in neighbors)
+      if self.edu == 0:
+        self.state = "happy"
+      elif self.edu == 1:
+        if num_same_edu >= require_same_edu:
+          self.state = "happy"
+        else:
+          self.state = "unhappy"
+
+  def update(self):
+    if self.state == "unhappy":
+      self.draw_location()
+      
+ 
+ 
+#エージェントの数(人種_教育意識_動き方)
+#エージェントの総数
+n = 1000
+
+#500人中400人は人種で動く
+num_of_race_i_i_0 = int(n * (4/5) * (1/4))
+
+#500人中100人は教育意識で動く
+num_of_race_i_i_1 = int(n * (1/5) * (1/4))
+
+num_neighbors = 10 #隣人と判断されるエージェントの数
+
+require_same_edu = 3 #少なくともこの数の同じ教育意識のエージェントが隣人であってほしい
+
+
+#リストの作成
+agents = [Agent(0,0,0) for i in range(num_of_race_i_i_0)]
+agents.extend(Agent(0,1,0) for i in range(num_of_race_i_i_0))
+agents.extend(Agent(1,0,0) for i in range(num_of_race_i_i_0))
+agents.extend(Agent(1,1,0) for i in range(num_of_race_i_i_0))
+
+agents.extend(Agent(0,1,1) for i in range(num_of_race_i_i_1))
+agents.extend(Agent(1,0,1) for i in range(num_of_race_i_i_1))
+agents.extend(Agent(0,1,1) for i in range(num_of_race_i_i_1))
+agents.extend(Agent(1,0,1) for i in range(num_of_race_i_i_1))
+
+for agent in agents:    
+  if agent.edu == 0:            #edu == 0は教育意識が低い
+    require_same_race = 3      #少なくともこの数の同じ人種のエージェントが隣人であってほしい
+  elif agent.edu == 1:          #edu == 1が教育意識が高い
+    require_same_race = 1
+
+#動きたいエージェントがいなくなるまでループ
+frame = []
+while True:
+  print("Entering loop ")
+    #プリントの準備
+  x_value_0_0, y_value_0_0 = [], []
+  x_value_0_1, y_value_0_1 = [], []
+  x_value_1_0, y_value_1_0 = [], []
+  x_value_1_1, y_value_1_1 = [], []
+  for agent in agents:
+    x, y = agent.location
+    if agent.race == 0:
+      if agent.edu == 0:
+        x_value_0_0.append(x)
+        y_value_0_0.append(y)
+      else:
+        x_value_0_1.append(x)
+        y_value_0_1.append(y)
+    else:
+      if agent.edu == 0:
+        x_value_1_0.append(x)
+        y_value_1_0.append(y)
+      else:
+        x_value_1_1.append(x)
+        y_value_1_1.append(y)
+  frame.append([[x_value_0_0, y_value_0_0], 
+                [x_value_0_1, y_value_0_1], 
+                [x_value_1_0, y_value_1_0], 
+                [x_value_1_1, y_value_1_1]])
+  
+#
+
+  no_one_moved = True
+  for agent in agents:
+    old_location = agent.location
+    agent.happy(agents)
+    agent.update()
+    if agent.location != old_location:
+      no_one_moved = False
+  if no_one_moved:
+    break
+
+#
+
+print("Converged, terminating.")
+
+
+
+fig, ax = plt.subplots(figsize=(8, 8))
+plot_args = {'markersize' : 8, 'alpha' : 0.6}
+im1, = ax.plot([], [], 'v', markerfacecolor='orange',  **plot_args)
+im2, = ax.plot([], [], 'o', markerfacecolor='orange',  **plot_args)
+im3, = ax.plot([], [], 'v', markerfacecolor='green',  **plot_args)
+im4, = ax.plot([], [], 'o', markerfacecolor='green',  **plot_args)
+ax.set_xlim(0,1)
+ax.set_ylim(0,1)
+
+def update(i):
+    im1.set_data(frame[i][0]) #教育意識の低い人種0
+    im2.set_data(frame[i][1]) #教育意識の高い人種0
+    im3.set_data(frame[i][2]) #教育意識の低い人種1
+    im4.set_data(frame[i][3]) #教育意識の高い人種1
+    plt.title('Cycle :{}'.format(i))
+anim = FuncAnimation(fig, update,  blit=False,interval = 1000,frames=len(frame))
+HTML(anim.to_jshtml())
